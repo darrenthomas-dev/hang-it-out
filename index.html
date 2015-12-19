@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Hang It Out</title>
+  <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com http://code.jquery.com; style-src 'self' 'unsafe-inline'  http://code.jquery.com; media-src *"> -->
+  <meta name="format-detection" content="telephone=no">
+  <meta name="msapplication-tap-highlight" content="no">
+  <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+
+  <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css" />
+  <link rel="stylesheet" href="css/weather-icons.min.css" />
+
+  <style>
+    html {
+      height: 100%;
+    }
+    body {
+      text-align: center;
+    }
+    .ui-page {
+      background-image: url("img/bg.jpg") !important;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: cover;
+    }
+    .ui-overlay-a, .ui-page-theme-a, .ui-page-theme-a .ui-panel-wrapper {
+      text-shadow: none;
+    }
+    ul {
+      padding: 0;
+    }
+    li {
+      list-style: none;
+    }
+    button {
+      width: 75px;
+      height: 75px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 3px solid;
+      margin-right: 1em;
+    }
+
+    button:focus {
+      outline: 0;
+    }
+    #weather-time li {
+      margin-bottom: 20px;
+    }
+    .wi {
+      font-size: 55px;
+      vertical-align: top;
+    }
+    #weather-description {
+      margin: 1em auto;
+      margin-bottom: 2em;
+      border: 3px solid;
+      width: 160px;
+      padding: 10px;
+      border-radius: 95px;
+      text-align: center;
+      line-height: 26px;
+    }
+    #weather-time li {
+      display: inline-block;
+      margin-right: 1em;
+    }
+    p {
+      font-size: 1.2em;
+    }
+    .wi-umbrella {
+      display: none;
+    }
+    h1 {
+      font-size: 3.1em;
+    }
+
+
+  </style>
+</head>
+
+  <body>
+
+      <div role="main" class="ui-content">
+
+        <h1><i class='wi wi-umbrella'></i> <span>Hang It Out</span> <i class='wi wi-umbrella'></i></h1>
+
+        <p><span id="weather-day">Today</span> is a
+          <span id="weather-washing">(checks outside)</span> day for hanging the washing out.</p>
+        <ul id="weather-time"></ul>
+        <div id="weather-description"><ul></ul></div>
+        <p id="weather-uv-index"></p>
+
+        <button id="btn_0" class="btn_weekday" value="0" data-inline="true" type="button" name="button">Today</button>
+        <button id="btn_1" class="btn_weekday" value="1" data-inline="true" type="button" name="button">Tomorrow</button>
+        <button id="btn_2" class="btn_weekday" value="2" data-inline="true" type="button" name="button"></button>
+        <button id="btn_3" class="btn_weekday" value="3" data-inline="true" type="button" name="button"></button>
+        <button id="btn_4" class="btn_weekday" value="4" data-inline="true" type="button" name="button"></button>
+
+        <p>This data has been sourced from the weather station at <span id="weather-location"></span>.</p>
+
+      </div><!-- /content -->
+
+    <script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+
+<script>
+  $(function() {
+
+    var weatherDescription = {
+      0: "Clear night",
+      1: "Sunny day",
+      2: "Partly cloudy",
+      3: "Partly cloudy",
+      4: "",
+      5: "Mist",
+      6: "Fog",
+      7: "Cloudy",
+      8: "Overcast",
+      9: "Light rain shower",
+      10: "Light rain shower",
+      11: "Drizzle",
+      12: "Light rain",
+      13: "Heavy rain shower",
+      14: "Heavy rain shower",
+      15: "Heavy rain",
+      16: "Sleet shower",
+      17: "Sleet shower",
+      18: "Sleet",
+      19: "Hail shower",
+      20: "Hail shower",
+      21: "Hail",
+      22: "Light snow shower",
+      23: "Light snow shower",
+      24: "Light snow",
+      25: "Heavy snow shower",
+      26: "Heavy snow shower",
+      27: "Heavy snow",
+      28: "Thunder shower",
+      29: "Thunder shower",
+      30: "Thunder"
+    };
+
+    var weatherImage = {
+      0: "wi-night-clear",
+      1: "wi-day-sunny",
+      2: "wi-night-alt-cloudy",
+      3: "wi-day-cloudy",
+      4: "",
+      5: "wi-day-haze",
+      6: "wi-fog",
+      7: "wi-cloudy",
+      8: "wi-cloudy",
+      9: "wi-showers",
+      10: "wi-showers",
+      11: "wi-sprinkle",
+      12: "wi-showers",
+      13: "wi-rain",
+      14: "wi-rain",
+      15: "wi-rain",
+      16: "wi-sleet",
+      17: "wi-sleet",
+      18: "wi-sleet",
+      19: "wi-hail",
+      20: "wi-hail",
+      21: "wi-hail",
+      22: "wi-snow",
+      23: "wi-snow",
+      24: "wi-snow",
+      25: "wi-snowflake-cold",
+      26: "wi-snowflake-cold",
+      27: "wi-snowflake-cold",
+      28: "wi-storm-showers",
+      29: "wi-storm-showers",
+      30: "wi-thunderstorm"
+    };
+
+    var low = "UV index: Low exposure. No protection required. You can safely stay outside";
+    var mod = "UV index: Moderate exposure. Seek shade during midday hours, cover up and wear sunscreen";
+    var high = "UV index: High exposure. Seek shade during midday hours, cover up and wear sunscreen";
+    var vHigh = "UV index: Very high. Avoid being outside during midday hours. Shirt, sunscreen and hat are essential";
+    var extreme = "UV index: Extreme. Avoid being outside during midday hours. Shirt, sunscreen and hat essential.";
+
+    var uvIndex = {
+      0: "",
+      1: low,
+      2: low,
+      3: mod,
+      4: mod,
+      5: mod,
+      6: high,
+      7: high,
+      8: vHigh,
+      9: vHigh,
+      10: vHigh,
+      11: extreme
+    };
+
+    // Get current weather by id 3693
+    $.getJSON("http://datapoint.metoffice.gov.uk/public/data/val/wxfcs/all/json/3693?res=3hourly&key=c49d55a8-3888-42eb-a9e3-d140ca1d48e7", function(data) {
+
+      var weather = {};
+      var d = new Date();
+      var n = d.getHours();
+      var x;
+      var day = 0;
+
+      var weekday = new Array(7);
+      weekday[0] = "Sunday";
+      weekday[1] = "Monday";
+      weekday[2] = "Tuesday";
+      weekday[3] = "Wednesday";
+      weekday[4] = "Thursday";
+      weekday[5] = "Friday";
+      weekday[6] = "Saturday";
+
+      if (n >= 18) {
+        $('#weather-day').text('Tomorrow');
+        day = 1;
+      }
+
+      var y = 0;
+
+      $.each(data.SiteRep.DV.Location.Period, function(i, item) {
+        var d = new Date(item.value);
+        var n = weekday[d.getDay()];
+        console.log(y + " " + n);
+        if (y > 1) {
+          $('#btn_' + y).text(n);
+        }
+        y++;
+      })
+
+      $('.btn_weekday').click(function() {
+        var day = $(this).val();
+        var n = $(this).val();
+        console.log(day);
+
+        switch (day) {
+          case "0":
+            day = "Today";
+            break;
+          case "1":
+            day = "Tomorrow";
+            break;
+          default: day = $(this).text();
+        }
+
+        $('#weather-day').text(day);
+        getWeather(n);
+      })
+
+      getWeather(day);
+
+      function getWeather(day) {
+        var rain = false;
+        var uv = 0;
+        $('#weather-time').empty();
+
+      $.each(data.SiteRep.DV.Location.Period[day].Rep, function(i, item) {
+
+        function printWeather(x) {
+          var hour = ('<li><button>' + x + "</button> <i class='wi " + weatherImage[item.W] + "'></i></li>");
+
+          var description = ('<li>' +
+            weatherDescription[item.W] +
+            '</li><li> Temperature: ' +
+            item.T +
+            '&deg;C</li><li> Feels like: ' +
+            item.F +
+            '&deg;C</li><li> Wind: ' +
+            item.S +
+            ' ' +
+            item.D +
+            '</li><li> Precipitation: ' +
+            item.Pp +
+            '%</li>'
+          );
+
+          weather[x] = description;
+
+          $('#weather-time').append(hour);
+
+          $('button').click(function() {
+            var time = $(this).text();
+            $('#weather-description ul').html(weather[time]);
+          });
+
+          if(rain != true && (item.W >= 9 || item.Pp > 25)) {
+            rain = true;
+          };
+
+        }
+
+        switch (item.$) {
+          case "360":
+            if (n < 09 ||
+              day == 0 ||
+              day == 1 ||
+              day == 2 ||
+              day == 3 ||
+              day == 4 ) {
+              x = "06:00";
+              printWeather(x);
+            }
+            break;
+
+          case "540":
+            if (n < 12 ||
+              day == 0 ||
+              day == 1 ||
+              day == 2 ||
+              day == 3 ||
+              day == 4 ) {
+              x = "09:00";
+              printWeather(x);
+            }
+            break;
+
+          case "720":
+            if (n < 15 ||
+              day == 0 ||
+              day == 1 ||
+              day == 2 ||
+              day == 3 ||
+              day == 4 ) {
+              x = "12:00";
+              printWeather(x);
+            }
+            break;
+
+          case "900":
+            if (n < 18 ||
+              day == 0 ||
+              day == 1 ||
+              day == 2 ||
+              day == 3 ||
+              day == 4 ) {
+              x = "15:00";
+              printWeather(x);
+            }
+            break;
+
+          case "1080":
+            if (n < 18 ||
+              day == 0 ||
+              day == 1 ||
+              day == 2 ||
+              day == 3 ||
+              day == 4 ) {
+              x = "18:00";
+              printWeather(x);
+            }
+            break;
+          default:
+        }
+
+        if (item.U > uv) {
+          uv = item.U;
+        }
+
+      })
+
+      var firstHour = $('button:first').text();
+      $('#weather-description ul').html(weather[firstHour]);
+
+      $('#weather-uv-index').text(uvIndex[uv]);
+
+      var location = data.SiteRep.DV.Location.name;
+      $('#weather-location').text(location);
+
+      if (rain == true) {
+        $('#weather-washing').text('bad');
+        $('.wi-umbrella').show();
+      } else {
+        $('#weather-washing').text('good');
+        $('.wi-umbrella').hide();
+      }
+
+    }
+
+    });
+  });
+</script>
+
+<script type="text/javascript" src="cordova.js"></script>
+<script type="text/javascript" src="js/index.js"></script>
+
+</body>
+
+</html>

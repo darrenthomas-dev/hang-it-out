@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Location</title>
+
+	<!-- <meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<link rel="stylesheet" href="http://code.jquery.com/mobile/[version]/jquery.mobile-[version].min.css" />
+	<script src="http://code.jquery.com/jquery-[version].min.js"></script>
+	<script src="http://code.jquery.com/mobile/[version]/jquery.mobile-[version].min.js"></script> -->
+</head>
+<body>
+
+<div data-role="page">
+
+	<div data-role="header">
+		<h1>Find my location</h1>
+	</div><!-- /header -->
+
+	<div role="main" class="ui-content">
+		<p>Page content goes here.</p>
+	</div><!-- /content -->
+
+	<div data-role="footer">
+		<h4>Page Footer</h4>
+	</div><!-- /footer -->
+</div><!-- /page -->
+
+<script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<script>
+  // Get current site from location
+  $.getJSON("http://datapoint.metoffice.gov.uk/public/data/val/wxfcs/all/json/sitelist?key=c49d55a8-3888-42eb-a9e3-d140ca1d48e7", function(data) {
+
+     $.each(data.Locations.Location, function(i, item) {
+
+       switch (item.name) {
+         case "Sittingbourne":
+          console.log("Name: " + item.name + ", id: " + item.id);
+           break;
+         default: console.log("Not found.");
+       }
+     });
+
+  });
+
+</script>
+
+</body>
+</html>
