@@ -91,6 +91,10 @@
       </div><!-- /content -->
     <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
     <script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+    <!--<script src="jquery-1.10.0.min.js"></script> -->
+    <!--<script src="find-locations.js"></script>-->
+    <!--<script src="scripts.js"></script>-->
+    <script type="text/javascript" src="js/index.js"></script>
 <script>
   $(function() {
 
@@ -184,7 +188,8 @@
     };
 
     // Get current weather by id 3693
-    $.getJSON("https://datapoint.metoffice.gov.uk/public/data/val/wxfcs/all/json/3693?res=3hourly&key=c49d55a8-3888-42eb-a9e3-d140ca1d48e7", function(data) {
+    // var id = site.id;
+    $.getJSON("http://datapoint.metoffice.gov.uk/public/data/val/wxfcs/all/json/3693?res=3hourly&key=c49d55a8-3888-42eb-a9e3-d140ca1d48e7", function(data) {
 
       var weather = {};
       var d = new Date();
@@ -352,7 +357,7 @@
       $('#weather-description ul').html(weather[firstHour]);
 
       $('#weather-uv-index').text(uvIndex[uv]);
-
+      
       var location = data.SiteRep.DV.Location.name;
       $('#weather-location').text(location);
 
@@ -369,7 +374,5 @@
     });
   });
 </script>
-<script type="text/javascript" src="cordova.js"></script>
-<script type="text/javascript" src="js/index.js"></script>
 </body>
 </html>
